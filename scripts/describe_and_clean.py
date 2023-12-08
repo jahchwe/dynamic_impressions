@@ -89,6 +89,15 @@ def describe_and_clean(dataset_id):
 
     intersect_good_subjs = good_subjs_saw_all.intersection(good_subjs_first_impressions)
     intersect_good_subjs = intersect_good_subjs.intersection(good_subjs_all_final_impressions)
+
+    #############################
+    # MANUAL SUBJECT REMOVAL
+    #############################
+
+    manual_bad_subjs = ['5eace152e25d6800091dd418']
+
+    intersect_good_subjs = intersect_good_subjs.drop(manual_bad_subjs)
+
     output_file.write(f'Participants who saw all videos, formed first impressions for all videos, and have at least 5 final impressions for all videos: {intersect_good_subjs.shape}\n')
 
     ####

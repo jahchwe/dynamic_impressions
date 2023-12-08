@@ -57,6 +57,9 @@ def get_embeddings(dataset_id):
     video_lengths_dict = dict(zip(video_lengths['video'], video_lengths['length_sec']))
     final_impressions_cleaned['timepoint'] = final_impressions_cleaned.video.map(video_lengths_dict)
 
+    # for timeseries, if the timepoint is greater than the video length, drop the timepoint
+    timeseries_cleaned = timeseries_cleaned[timeseries_cleaned.timepoint <= timeseries_cleaned.video.map(video_lengths_dict)]
+
     # preprocess words
     timeseries_preproc = preprocess_words(timeseries_cleaned)
     final_impressions_preproc = preprocess_words(final_impressions_cleaned)
@@ -72,15 +75,19 @@ def get_embeddings(dataset_id):
     ts_w_embeddings = pd.concat([timeseries_preproc.reset_index(), pd.DataFrame(ts_embeddings).reset_index(drop=True)], axis = 1)
     final_w_embeddings = pd.concat([final_impressions_preproc.reset_index(), pd.DataFrame(final_embeddings).reset_index(drop=True)], axis = 1)
 
-    print(ts_w_embeddings.shape)
-    print(final_w_embeddings.shape)
+    ts_shape_before = ts_w_embeddings.shape
+    final_shape_before = final_w_embeddings.shape
 
     # remove entries in both that have no embedding
     ts_w_embeddings = ts_w_embeddings[~ts_w_embeddings.iloc[:, -300:].sum(axis=1).eq(0)]
     final_w_embeddings = final_w_embeddings[~final_w_embeddings.iloc[:, -300:].sum(axis=1).eq(0)]
 
-    print(ts_w_embeddings.shape)
-    print(final_w_embeddings.shape)
+    ts_shape_diff = ts_shape_before[0] - ts_w_embeddings.shape[0]
+    final_shape_diff = final_shape_before[0] - final_w_embeddings.shape[0]
+
+    with open('embeddings/%s/shape_diff.txt' % dataset_id, 'w') as f:
+        f.write('Timeseries shape difference: %s\n' % ts_shape_diff)
+        f.write('Final impressions shape difference: %s\n' % final_shape_diff)
 
     # save
     ts_w_embeddings.to_csv('embeddings/%s/timeseries_w_embeddings.csv' % dataset_id, index=False)
