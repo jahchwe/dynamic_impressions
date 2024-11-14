@@ -2,7 +2,7 @@
 #from scripts.describe_and_clean import describe_and_clean
 #from scripts.get_embeddings import get_embeddings   
 #from scripts.model_global_topics import model
-from scripts.final_impressions_ratings_rsa import run_rsa
+from scripts.rsa import run_rsa
 import sys
 
 

@@ -83,7 +83,9 @@ def init_rsa(dataset_id, load_saved = False, final_metric = 'cosine', timeseries
         # load pickled pdists
         try: 
             ratings_pdist = pickle.load(os.path.join(OUTPATH, 'pdist_pickles/ratings_pdist.pkl'))
+            # warmth competence ratings pdist
             ratings_pdist_wc = pickle.load(os.path.join(OUTPATH, 'pdist_pickles/ratings_pdist_wc.pkl'))
+            # big 5 traits ('conscientiousness', 'openness', 'neuroticism', 'extroversion', 'agreeableness') ratings pdist
             ratings_pdist_big5 = pickle.load(os.path.join(OUTPATH, 'pdist_pickles/ratings_pdist_big5.pkl'))
 
             final_impressions_pdist = pickle.load(os.path.join(OUTPATH, 'pdist_pickles/final_impressions_pdist.pkl'))   
@@ -198,6 +200,9 @@ def init_rsa(dataset_id, load_saved = False, final_metric = 'cosine', timeseries
             plot_sorted_dm_ts(subj_timeseries, ts_pdist_store, unique_subjects, lambda x, y: ctw(x, y), 'timeseries_%s' % v, OUTPATH)
     
     # calculate pdist for timepoint averaged timeseries embeddings
+    # THIS IS AVERAGING ALL EMBEDDINGS WITHIN A TRAJECTORY 
+    # AKA REMOVING THE TIME DIMENSION. THIS NOT COLLAPSING MULTIPLE WORDS AT A SINGLE TIMEPOINT
+    # THAT WAS DONE EARLIER IN THE PIPELINE
     print('Calculating timepoint averaged timeseries pdists')
     timeseries_pdist_timepoint_averaged = {}
     for v in tqdm(timeseries_w_embeddings.video.unique()):
@@ -278,7 +283,7 @@ def run_rsa(dataset_id, final_metric = 'cosine', timeseries_metric = 'ctw', rati
     OUTPATH = 'rsa_results/%s/%s' % (dataset_id, variant_id)
 
     # calculate the distance matrices for all data sources
-    ratings_pdist, ratings_pdist_wc, ratings_pdist_big5, final_impressions_pdist, timeseries_pdist, timeseries_timepoint_avg_pdist = init_rsa(dataset_id, final_metric, timeseries_metric, ratings_metric, plot_DMs = False, OUTPATH = OUTPATH)
+    ratings_pdist, ratings_pdist_wc, ratings_pdist_big5, final_impressions_pdist, timeseries_pdist, timeseries_timepoint_avg_pdist = init_rsa(dataset_id, False, final_metric, timeseries_metric, ratings_metric, plot_DMs = False, OUTPATH = OUTPATH)
 
     # loop through videos
     '''
